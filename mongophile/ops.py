@@ -29,8 +29,6 @@ class MongoQuery(MongoOp):
         self.nscanned = int(nscanned)
         self.query = query
         self.nreturned = int(nreturned)
-        print self.nreturned
-        print self.nscanned
         if self.nreturned == 0:
             self.scanRatio = 0
         else:
