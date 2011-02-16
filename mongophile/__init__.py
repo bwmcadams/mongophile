@@ -102,10 +102,15 @@ def mongophile(app):
 
     ops = []
     for entry in data:
-        ops.append(parseEntry(app, entry))
+        obj = parseEntry(app, entry)
+        if obj:
+            ops.append(obj)
 
     print "Parsed %d ops." % len(ops)
-    totalMS = reduce(lambda x, y: y + x.ms, ops, 0L)
+    totalMS = reduce(lambda x, y: x + y.ms, ops, 0L)
+    print "Total Milliseconds: %d" % totalMS
+    sortedOps = sorted(ops, lambda x, y: cmp(y.ms, x.ms))
+    print sortedOps[0:10]
 
 mongophile.add_param("-x", "--host", help="MongoDB host to read from", default="localhost")
 mongophile.add_param("-p", "--port", help="MongoDB port to read from",

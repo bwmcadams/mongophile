@@ -4,12 +4,16 @@ except:
     import simplejson as json
 
 class MongoOp(object):
-    pass
+
+    def __repr__(self):
+        return "{ [MongoOp '%s'] %d ms }" % (self.opType, self.ms)
 
 class MongoInsert(MongoOp):
-    pass
+    opType = "insert"
 
 class MongoQuery(MongoOp):
+
+    opType = "query"
 
     def __init__(self, log, ts, ms, db, coll, ntoreturn,
                  scanAndOrder, reslen, nscanned,
@@ -32,6 +36,9 @@ class MongoQuery(MongoOp):
             #log.error("Cannot parse raw query '%s' into a dictionary. Error: %s" % (query, e))
 
 class MongoCommand(MongoOp):
+
+    opType = "command"
+
     def __init__(self, log, ts, ms, db, ntoreturn, command, reslen):
         self.log = log
         self.db = db
@@ -47,8 +54,10 @@ class MongoCommand(MongoOp):
             #log.error("Cannot parse raw command '%s' into a dictionary. Error: %s" % (command, e))
 
 class MongoUpdate(MongoOp):
+    opType = "update"
+
     def __init__(self, log, ts, ms, db, coll, query,
-                 nscanned, opType):
+                 nscanned, updateType):
         self.log = log
         self.db = db
         self.coll = coll
@@ -56,7 +65,8 @@ class MongoUpdate(MongoOp):
         self.ms = ms
         self.query = query
         self.nscanned = nscanned
-        self.opType = opType
+        self.updateType = updateType
+        self.opType = self.opType + " {%s}" % updateType
 
         #try:
             #self.query = json.loads(self.rawQuery)
