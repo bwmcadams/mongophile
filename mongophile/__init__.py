@@ -42,7 +42,7 @@ def parseEntry(app, entry):
                 command = data.group(3)
                 reslen = data.group(4)
                 app.log.debug("[Command] DB: %s NToReturn: %s Command: %s ResLen:%s", db, ntoreturn, command, reslen)
-                return ops.MongoCommand(app.log, db, ntoreturn, command, reslen)
+                return ops.MongoCommand(app.log, entry['ts'], entry['millis'], db, ntoreturn, command, reslen)
             else:
                 app.log.info("Failed to match RegEx on command '%s'" % debug)
         else:
@@ -57,7 +57,7 @@ def parseEntry(app, entry):
                 query = data.group(10)
                 nreturned = data.group(11)
                 app.log.debug("[Query] DB: %s Coll: %s Scan And Order?: %s NToReturn: %s ResLen:%s NScanned:%s Query:%s NReturned:%s", db, coll, scanAndOrder, ntoreturn, reslen, nscanned, query, nreturned)
-                return ops.MongoQuery(app.log, db, coll, ntoreturn, scanAndOrder, reslen, nscanned, query, nreturned)
+                return ops.MongoQuery(app.log, entry['ts'], entry['millis'], db, coll, ntoreturn, scanAndOrder, reslen, nscanned, query, nreturned)
             else:
                 app.log.info("Failed to match RegEx on query '%s'" % debug)
     elif debug.startswith("update"):
@@ -70,7 +70,7 @@ def parseEntry(app, entry):
             nscanned = data.group(5)
             opType = data.group(6)
             app.log.debug("[Update] DB: %s Coll: %s NScanned: %s OpType: %s Query: %s", db, coll, nscanned, opType, query)
-            return ops.MongoUpdate(app.log, db, coll, query, nscanned, opType)
+            return ops.MongoUpdate(app.log, entry['ts'], entry['millis'], db, coll, query, nscanned, opType)
         else:
             app.log.info("Failed to match RegEx on update '%s'" % debug)
     elif debug.startswith("remove"):
@@ -105,6 +105,7 @@ def mongophile(app):
         ops.append(parseEntry(app, entry))
 
     print "Parsed %d ops." % len(ops)
+    totalMS = reduce(lambda x, y: y + x.ms, ops, 0L)
 
 mongophile.add_param("-x", "--host", help="MongoDB host to read from", default="localhost")
 mongophile.add_param("-p", "--port", help="MongoDB port to read from",

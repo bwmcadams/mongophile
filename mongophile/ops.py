@@ -11,10 +11,12 @@ class MongoInsert(MongoOp):
 
 class MongoQuery(MongoOp):
 
-    def __init__(self, log, db, coll, ntoreturn,
+    def __init__(self, log, ts, ms, db, coll, ntoreturn,
                  scanAndOrder, reslen, nscanned,
                  query, nreturned):
         self.log = log
+        self.ts = ts
+        self.ms = ms
         self.db = db
         self.coll = coll
         self.ntoreturn = ntoreturn
@@ -30,10 +32,11 @@ class MongoQuery(MongoOp):
             #log.error("Cannot parse raw query '%s' into a dictionary. Error: %s" % (query, e))
 
 class MongoCommand(MongoOp):
-    def __init__(self, log, db, ntoreturn,
-                 command, reslen):
+    def __init__(self, log, ts, ms, db, ntoreturn, command, reslen):
         self.log = log
         self.db = db
+        self.ts = ts
+        self.ms = ms
         self.ntoreturn = ntoreturn
         self.command = command
         self.reslen = reslen
@@ -44,11 +47,13 @@ class MongoCommand(MongoOp):
             #log.error("Cannot parse raw command '%s' into a dictionary. Error: %s" % (command, e))
 
 class MongoUpdate(MongoOp):
-    def __init__(self, log, db, coll, query,
+    def __init__(self, log, ts, ms, db, coll, query,
                  nscanned, opType):
         self.log = log
         self.db = db
         self.coll = coll
+        self.ts = ts
+        self.ms = ms
         self.query = query
         self.nscanned = nscanned
         self.opType = opType
