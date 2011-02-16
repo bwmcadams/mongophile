@@ -6,7 +6,7 @@ except:
 class MongoOp(object):
 
     def __repr__(self):
-        return "{ [MongoOp '%s'] %d ms }" % (self.opType, self.ms)
+        return "{ [MongoOp '%s'] %dms }" % (self.opType, self.millis)
 
 class MongoInsert(MongoOp):
     opType = "insert"
@@ -15,20 +15,27 @@ class MongoQuery(MongoOp):
 
     opType = "query"
 
-    def __init__(self, log, ts, ms, db, coll, ntoreturn,
+    def __init__(self, log, ts, millis, db, coll, ntoreturn,
                  scanAndOrder, reslen, nscanned,
                  query, nreturned):
         self.log = log
         self.ts = ts
-        self.ms = ms
+        self.millis = millis
         self.db = db
         self.coll = coll
         self.ntoreturn = ntoreturn
         self.scanAndOrder = scanAndOrder is None
         self.reslen = reslen
-        self.nscanned = nscanned
+        self.nscanned = int(nscanned)
         self.query = query
-        self.nreturned = nreturned
+        self.nreturned = int(nreturned)
+        print self.nreturned
+        print self.nscanned
+        if self.nreturned == 0:
+            self.scanRatio = 0
+        else:
+            self.scanRatio = self.nreturned / self.nscanned
+
 
         #try:
             #self.query = json.loads(self.rawQuery)
@@ -39,11 +46,11 @@ class MongoCommand(MongoOp):
 
     opType = "command"
 
-    def __init__(self, log, ts, ms, db, ntoreturn, command, reslen):
+    def __init__(self, log, ts, millis, db, ntoreturn, command, reslen):
         self.log = log
         self.db = db
         self.ts = ts
-        self.ms = ms
+        self.millis = millis
         self.ntoreturn = ntoreturn
         self.command = command
         self.reslen = reslen
@@ -56,13 +63,13 @@ class MongoCommand(MongoOp):
 class MongoUpdate(MongoOp):
     opType = "update"
 
-    def __init__(self, log, ts, ms, db, coll, query,
+    def __init__(self, log, ts, millis, db, coll, query,
                  nscanned, updateType):
         self.log = log
         self.db = db
         self.coll = coll
         self.ts = ts
-        self.ms = ms
+        self.millis = millis
         self.query = query
         self.nscanned = nscanned
         self.updateType = updateType
