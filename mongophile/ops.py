@@ -1,3 +1,5 @@
+from __future__ import division
+
 try:
     import json
 except:
@@ -6,7 +8,7 @@ except:
 class MongoOp(object):
 
     def __repr__(self):
-        return "{ [MongoOp '%s'] %dms }" % (self.opType, self.millis)
+        return "{ [MongoOp '%s'] %sms }" % (self.opType, self.millis)
 
 class MongoInsert(MongoOp):
     opType = "insert"
@@ -29,16 +31,19 @@ class MongoQuery(MongoOp):
         self.nscanned = int(nscanned)
         self.query = query
         self.nreturned = int(nreturned)
-        if self.nreturned == 0:
-            self.scanRatio = 0
+        if self.nscanned == 0:
+            self.scanRatio = 0.0
         else:
-            self.scanRatio = self.nreturned / self.nscanned
+            self.scanRatio = "%.2f" % (self.nreturned / self.nscanned * 100)
 
 
         #try:
             #self.query = json.loads(self.rawQuery)
         #except Exception, e:
             #log.error("Cannot parse raw query '%s' into a dictionary. Error: %s" % (query, e))
+
+    def __str__(self):
+        return "* Query against %s.%s ; returned %s documents (after scanning %s, for a Scan:Return ratio of %s%%) in %s bytes, taking %sms using query '%s'" % (self.db, self.coll, self.nreturned, self.nscanned, self.scanRatio, self.reslen, self.millis, self.query)
 
 class MongoCommand(MongoOp):
 
@@ -57,6 +62,9 @@ class MongoCommand(MongoOp):
             #self.query = json.loads(self.rawCommand)
         #except Exception, e:
             #log.error("Cannot parse raw command '%s' into a dictionary. Error: %s" % (command, e))
+
+    def __str__(self):
+        return "* Command in database %s ; returned %s bytes, taking %sms with command query '%s'" % (self.db, self.reslen, self.millis, self.command)
 
 class MongoUpdate(MongoOp):
     opType = "update"
@@ -77,4 +85,6 @@ class MongoUpdate(MongoOp):
             #self.query = json.loads(self.rawQuery)
         #except Exception, e:
             #log.error("Cannot parse raw query '%s' into a dictionary. Error: %s" % (query, e))
+    def __str__(self):
+        return "* Update of subtype '%s' against %s.%s; scanned %s documents, taking %sms using query '%s'" % (self.updateType, self.db, self.coll, self.nscanned, self.millis, self.query)
 
