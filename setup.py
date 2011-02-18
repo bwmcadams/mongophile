@@ -16,7 +16,6 @@ setup(
     author='Brendan W. McAdams',
     author_email='brendan@10gen.com',
     packages=['mongophile'],
-    scripts=['bin/parse_mongo_profile.py'],
     url='http://github.com/bwmcadams/mongophile',
     description='Parse utilities for the MongoDB Profiler log',
     entry_points="""
